@@ -42,5 +42,9 @@ app-example
 /ios
 /android
 
-.cursor/
+# Editor configuration files
 .vscode/
+.cursor/
+
+# Expo cache and generated files
+.expo/
