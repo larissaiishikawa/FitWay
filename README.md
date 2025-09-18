@@ -1,52 +1,145 @@
-ar
+# 📱 **FitWay – App de Dieta e Treino**
 
-# Welcome to your Expo app 👋
+> Um aplicativo multiplataforma (iOS e Android) desenvolvido em **React Native + Expo**, focado em personalização, monitoramento e motivação do usuário para manter hábitos saudáveis.
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+---
 
-## Get started
+## 📖 **Sumário**
 
-1. Install dependencies
+* [📋 Visão Geral]
+* [🎯 Objetivo]
+* [🧠 Entendimento do Negócio]
+* [💡 Proposta de Solução]
+* [📂 Estrutura do Projeto]
+* [🖼 Mockups e Prototipagem]
+* [⚙️ Tecnologias Utilizadas]
+* [👥 Equipe]
+* [🛠 Como Executar o Projeto]
+* [🚀 Próximos Passos]
 
-   ```bash
-   npm install
-   ```
+---
 
-2. Start the app
+## 📋 **Visão Geral**
 
-   ```bash
-   npx expo start
-   ```
+O **FitWay** surgiu para resolver a dificuldade de manter hábitos saudáveis no dia a dia.
+Nosso app permite que usuários planejem dieta, registrem refeições, acompanhem treinos e monitorem sua evolução de forma **simples, visual e intuitiva**.
 
-In the output, you'll find options to open the app in a
+---
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## 🎯 **Objetivo**
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+✅ Criar um **MVP funcional** que permita ao usuário:
 
-## Get a fresh project
+* Registrar refeições e treinos
+* Visualizar metas e progresso diário
+* Acompanhar relatórios semanais
 
-When you're ready, run:
+---
+
+## 🧠 **Entendimento do Negócio**
+
+**Problema:**
+
+* Falta de acompanhamento personalizado → frustração e abandono de metas
+* Informações conflitantes e falta de tempo → hábitos inconsistentes
+
+**Solução:**
+
+* Aplicativo que centraliza dieta, treino e relatórios
+* Interface amigável para manter engajamento
+* Sistema de metas para motivação diária
+
+---
+
+## 💡 **Proposta de Solução**
+
+* 🥗 **Plano alimentar** e diário de refeições
+* 🏋️ **Treinos com vídeos e instruções**
+* 📊 **Relatórios e gráficos** de evolução
+* 🔔 **Notificações e lembretes** para manter o usuário no caminho
+* ☁ **Sincronização em nuvem** (Firebase)
+
+---
+
+## 📂 **Estrutura do Projeto**
 
 ```bash
-npm run reset-project
+📦 FitWay
+ ┣ 📂 app              # Estrutura principal do React Native + Expo
+ ┣ 📂 assets/images   # Ícones, logos e imagens usadas no app
+ ┣ 📂 components      # Componentes reutilizáveis (botões, inputs, headers)
+ ┣ 📂 constants       # Variáveis globais (cores, fontes, configs)
+ ┣ 📂 hooks           # Custom Hooks para lógica reutilizável
+ ┣ 📂 scripts         # Scripts auxiliares
+ ┣ 📜 app.json        # Configurações do Expo
+ ┣ 📜 package.json    # Dependências e scripts NPM
+ ┣ 📜 tsconfig.json   # Configurações de TypeScript
+ ┣ 📜 eslint.config.js # Regras de lint
+ ┣ 📜 README.md       # Este arquivo
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+---
 
-## Learn more
+## 🖼 **Mockups e Prototipagem**
 
-To learn more about developing your project with Expo, look at the following resources:
+📌 **Fluxo inicial do usuário:**
+Login → Tela inicial (metas) → Diário alimentar → Tela de treino → Relatórios
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+🔗 Mockups criados no **Figma** *(adicionar link assim que disponível)*
 
-## Join the community
+---
 
-Join our community of developers creating universal apps.
+## ⚙️ **Tecnologias Utilizadas**
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+* **Framework:** React Native + Expo
+* **Linguagem:** TypeScript (83,7%) + JavaScript
+* **Gerenciamento de Estado:** Context API ou Redux
+* **Banco de Dados:** Firebase Firestore
+* **Navegação:** React Navigation
+* **Validação:** Formik + Yup
+* **Lint:** ESLint + Prettier
+
+---
+
+## 👥 **Equipe**
+
+| Membro               | Função          |
+| -------------------- | --------------- |
+| **Larissa Ishikawa** | Documentação    |
+| **Leonardo Fasano**  | Desenvolvimento |
+| **André Agostinis**  | Desenvolvimento |
+| **Roger Motoyama**   | UI/UX           |
+| **Rafael Kondo**     | Desenvolvimento |
+
+---
+
+## 🛠 **Como Executar o Projeto**
+
+```bash
+# Clone o repositório
+git clone https://github.com/larissaiishikawa/FitWay.git
+
+# Acesse a pasta do projeto
+cd FitWay
+
+# Instale as dependências
+npm install
+
+# Rode o app no Expo
+npx expo start
+```
+
+> Você pode escanear o QR Code no terminal com o **Expo Go** no celular para visualizar o app em tempo real.
+
+---
+
+## 🚀 **Próximos Passos**
+
+* Criar tela de relatórios com gráficos dinâmicos
+* Integrar Firebase para autenticação e banco de dados
+* Implementar notificações push
+* Adicionar sistema de metas gamificado
+* Testes com usuários e melhorias de UX
+
+---
+
