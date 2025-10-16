@@ -6,7 +6,6 @@ import { Ionicons } from "@expo/vector-icons";
 export default function HomeScreen() {
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <ThemedText style={styles.appTitle}>FitWay</ThemedText>
@@ -18,7 +17,6 @@ export default function HomeScreen() {
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Resumo de Hoje Card */}
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <Ionicons name="analytics" size={24} color="#374151" />
@@ -47,7 +45,6 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {/* Metas de Hoje Card */}
         <View style={styles.card}>
           <ThemedText style={styles.cardTitle}>Metas de Hoje</ThemedText>
           
@@ -78,7 +75,6 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {/* Lembrete Card */}
         <View style={styles.card}>
           <View style={styles.reminderItem}>
             <Ionicons name="calendar" size={20} color="#F59E0B" />

@@ -6,7 +6,6 @@ import { Ionicons } from "@expo/vector-icons";
 export default function DietaScreen() {
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <ThemedText style={styles.appTitle}>FitWay</ThemedText>
@@ -18,7 +17,6 @@ export default function DietaScreen() {
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Diário Alimentar Section */}
         <View style={styles.sectionHeader}>
           <ThemedText style={styles.sectionTitle}>Diário Alimentar</ThemedText>
           <TouchableOpacity style={styles.addButton}>
@@ -27,7 +25,6 @@ export default function DietaScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Resumo Nutricional Card */}
         <View style={styles.nutritionCard}>
           <View style={styles.nutritionItem}>
             <ThemedText style={styles.nutritionValue}>1,847</ThemedText>
@@ -43,7 +40,6 @@ export default function DietaScreen() {
           </View>
         </View>
 
-        {/* Refeições */}
         <View style={styles.mealCard}>
           <View style={styles.mealHeader}>
             <ThemedText style={styles.mealTitle}>Café da Manhã</ThemedText>
@@ -77,7 +73,6 @@ export default function DietaScreen() {
           <ThemedText style={styles.mealCalories}>180 kcal</ThemedText>
         </View>
 
-        {/* Adicionar Jantar Button */}
         <TouchableOpacity style={styles.addDinnerButton}>
           <Ionicons name="add" size={24} color="#374151" />
           <ThemedText style={styles.addDinnerText}>Adicionar Jantar</ThemedText>

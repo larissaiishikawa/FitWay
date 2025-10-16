@@ -6,7 +6,6 @@ import { Ionicons } from "@expo/vector-icons";
 export default function RelatoriosScreen() {
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <ThemedText style={styles.appTitle}>FitWay</ThemedText>
@@ -18,10 +17,8 @@ export default function RelatoriosScreen() {
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Relatórios e Evolução Title */}
         <ThemedText style={styles.mainTitle}>Relatórios e Evolução</ThemedText>
 
-        {/* Resumo Semanal Card */}
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <Ionicons name="trending-up" size={20} color="#374151" />
@@ -48,7 +45,6 @@ export default function RelatoriosScreen() {
           </View>
         </View>
 
-        {/* Evolução do Peso Card */}
         <View style={styles.card}>
           <ThemedText style={styles.cardTitle}>Evolução do Peso</ThemedText>
           <View style={styles.chartPlaceholder}>
@@ -58,7 +54,6 @@ export default function RelatoriosScreen() {
           </View>
         </View>
 
-        {/* Conquistas da Semana Card */}
         <View style={styles.card}>
           <ThemedText style={styles.cardTitle}>Conquistas da Semana</ThemedText>
           

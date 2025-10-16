@@ -6,7 +6,6 @@ import { Ionicons } from "@expo/vector-icons";
 export default function TreinoScreen() {
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <ThemedText style={styles.appTitle}>FitWay</ThemedText>
@@ -18,7 +17,6 @@ export default function TreinoScreen() {
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Plano de Treino Section */}
         <View style={styles.sectionHeader}>
           <ThemedText style={styles.sectionTitle}>Plano de Treino</ThemedText>
           <View style={styles.weekTag}>
@@ -26,11 +24,9 @@ export default function TreinoScreen() {
           </View>
         </View>
 
-        {/* Treino de Hoje Card */}
         <View style={styles.workoutCard}>
           <ThemedText style={styles.workoutTitle}>Treino de Hoje - Peito e Tríceps</ThemedText>
           
-          {/* Exercícios */}
           <View style={styles.exerciseList}>
             <View style={styles.exerciseItem}>
               <View style={styles.exerciseNumber}>
@@ -77,7 +73,6 @@ export default function TreinoScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Esta Semana Section */}
         <View style={styles.weekSection}>
           <ThemedText style={styles.weekSectionTitle}>Esta Semana</ThemedText>
           
