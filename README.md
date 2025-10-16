@@ -6,16 +6,16 @@
 
 ## 📖 **Sumário**
 
-* [📋 Visão Geral]
-* [🎯 Objetivo]
-* [🧠 Entendimento do Negócio]
-* [💡 Proposta de Solução]
-* [📂 Estrutura do Projeto]
-* [🖼 Mockups e Prototipagem]
-* [⚙️ Tecnologias Utilizadas]
-* [👥 Equipe]
-* [🛠 Como Executar o Projeto]
-* [🚀 Próximos Passos]
+* 📋 Visão Geral
+* 🎯 Objetivo
+* 🧠 Entendimento do Negócio
+* 💡 Proposta de Solução
+* 📂 Estrutura do Projeto
+* 🖼 Mockups e Prototipagem
+* ⚙️ Tecnologias Utilizadas
+* 👥 Equipe
+* 🛠 Como Executar o Projeto
+* 🚀 Próximos Passos
 
 ---
 
@@ -85,7 +85,7 @@ Nosso app permite que usuários planejem dieta, registrem refeições, acompanhe
 📌 **Fluxo inicial do usuário:**
 Login → Tela inicial (metas) → Diário alimentar → Tela de treino → Relatórios
 
-🔗 Mockups criados no **Figma** *(adicionar link assim que disponível)*
+🔗 Mockups criados no **Figma** *https://bit.ly/prototipo-fitway*
 
 ---
 
