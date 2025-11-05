@@ -1,9 +1,10 @@
 import { ThemedText } from "@/components/themed-text";
-import { ThemedView } from "@/components/themed-view";
 import { StyleSheet, View, ScrollView, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { Link } from 'expo-router';
 
 export default function DietaScreen() {
+  
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -19,10 +20,14 @@ export default function DietaScreen() {
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.sectionHeader}>
           <ThemedText style={styles.sectionTitle}>Diário Alimentar</ThemedText>
-          <TouchableOpacity style={styles.addButton}>
-            <Ionicons name="add" size={20} color="white" />
-            <ThemedText style={styles.addButtonText}>Adicionar</ThemedText>
-          </TouchableOpacity>
+          
+          <Link href="/add-meal-modal" asChild>
+            <TouchableOpacity style={styles.addButton}>
+              <Ionicons name="add" size={20} color="white" />
+              <ThemedText style={styles.addButtonText}>Adicionar</ThemedText>
+            </TouchableOpacity>
+          </Link>
+
         </View>
 
         <View style={styles.nutritionCard}>

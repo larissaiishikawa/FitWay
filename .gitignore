@@ -48,3 +48,5 @@ app-example
 
 # Expo cache and generated files
 .expo/
+
+.env

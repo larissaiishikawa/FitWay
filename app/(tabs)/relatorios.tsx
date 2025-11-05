@@ -1,84 +1,71 @@
+import React, { useState, useEffect } from 'react';
 import { ThemedText } from "@/components/themed-text";
-import { ThemedView } from "@/components/themed-view";
-import { StyleSheet, View, ScrollView, TouchableOpacity } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { View, StyleSheet, FlatList, ScrollView, TouchableOpacity } from "react-native";
+import { collection, onSnapshot, query, where } from "firebase/firestore";
+import { db } from '@/firebaseConfig';
+import { useAuth } from '@/context/AuthContext';
+import Header from '@/components/Header';
+
+type Meal = {
+  id: string;
+  name: string;
+  description: string;
+  calories: number;
+};
 
 export default function RelatoriosScreen() {
+  const { user } = useAuth();
+  const [meals, setMeals] = useState<Meal[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user) {
+      setLoading(false);
+      setMeals([]); 
+      return;
+    }
+    
+    const mealsCollection = collection(db, "meals");
+    const q = query(mealsCollection, where("userId", "==", user.uid));
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const mealsList = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Meal[];
+      setMeals(mealsList);
+      setLoading(false);
+    });
+
+    return () => unsubscribe(); 
+    
+  }, [user]); 
+
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <ThemedText style={styles.appTitle}>FitWay</ThemedText>
-          <ThemedText style={styles.appSubtitle}>Sua jornada saudável</ThemedText>
-        </View>
-        <TouchableOpacity style={styles.profileButton}>
-          <ThemedText style={styles.profileInitial}>U</ThemedText>
-        </TouchableOpacity>
-      </View>
+      {/* Usa o Header reutilizável */}
+      <Header title="FitWay" subtitle="Sua jornada saudável" />
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        <ThemedText style={styles.mainTitle}>Relatórios e Evolução</ThemedText>
+      <ScrollView style={styles.content}>
+        <ThemedText style={styles.mainTitle}>Refeições Registradas</ThemedText>
+        {loading && <ThemedText>Carregando refeições...</ThemedText>}
+        
+        {!loading && meals.length === 0 && (
+          <ThemedText style={styles.emptyText}>Nenhuma refeição registrada ainda. Adicione uma na aba "Dieta"!</ThemedText>
+        )}
 
-        <View style={styles.card}>
-          <View style={styles.cardHeader}>
-            <Ionicons name="trending-up" size={20} color="#374151" />
-            <ThemedText style={styles.cardTitle}>Resumo Semanal</ThemedText>
-          </View>
-          
-          <View style={styles.metricsGrid}>
-            <View style={styles.metricItem}>
-              <ThemedText style={[styles.metricValue, { color: '#10B981' }]}>-1.2kg</ThemedText>
-              <ThemedText style={styles.metricLabel}>Peso perdido</ThemedText>
+        <FlatList
+          data={meals}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <View style={styles.mealItemCard}>
+              <ThemedText style={styles.mealName}>{item.name}</ThemedText>
+              <ThemedText style={styles.mealDescription}>{item.description}</ThemedText>
+              <ThemedText style={styles.mealCalories}>{item.calories} kcal</ThemedText>
             </View>
-            <View style={styles.metricItem}>
-              <ThemedText style={[styles.metricValue, { color: '#3B82F6' }]}>4/5</ThemedText>
-              <ThemedText style={styles.metricLabel}>Treinos realizados</ThemedText>
-            </View>
-            <View style={styles.metricItem}>
-              <ThemedText style={[styles.metricValue, { color: '#F59E0B' }]}>1,950</ThemedText>
-              <ThemedText style={styles.metricLabel}>Kcal média/dia</ThemedText>
-            </View>
-            <View style={styles.metricItem}>
-              <ThemedText style={[styles.metricValue, { color: '#8B5CF6' }]}>7.5h</ThemedText>
-              <ThemedText style={styles.metricLabel}>Sono médio</ThemedText>
-            </View>
-          </View>
-        </View>
-
-        <View style={styles.card}>
-          <ThemedText style={styles.cardTitle}>Evolução do Peso</ThemedText>
-          <View style={styles.chartPlaceholder}>
-            <Ionicons name="bar-chart" size={48} color="#9CA3AF" />
-            <ThemedText style={styles.chartText}>Gráfico de evolução</ThemedText>
-            <ThemedText style={styles.chartSubtext}>Últimos 30 dias</ThemedText>
-          </View>
-        </View>
-
-        <View style={styles.card}>
-          <ThemedText style={styles.cardTitle}>Conquistas da Semana</ThemedText>
-          
-          <View style={styles.achievementsList}>
-            <View style={styles.achievementItem}>
-              <View style={[styles.achievementIcon, { backgroundColor: '#F59E0B' }]}>
-                <Ionicons name="trophy" size={20} color="white" />
-              </View>
-              <View style={styles.achievementInfo}>
-                <ThemedText style={styles.achievementTitle}>Consistência</ThemedText>
-                <ThemedText style={styles.achievementDescription}>5 dias seguidos de metas cumpridas</ThemedText>
-              </View>
-            </View>
-
-            <View style={styles.achievementItem}>
-              <View style={[styles.achievementIcon, { backgroundColor: '#3B82F6' }]}>
-                <Ionicons name="water" size={20} color="white" />
-              </View>
-              <View style={styles.achievementInfo}>
-                <ThemedText style={styles.achievementTitle}>Hidratação Master</ThemedText>
-                <ThemedText style={styles.achievementDescription}>Meta de água atingida 7 dias</ThemedText>
-              </View>
-            </View>
-          </View>
-        </View>
+          )}
+          scrollEnabled={false}
+        />
       </ScrollView>
     </View>
   );
@@ -88,41 +75,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F3F4F6',
-  },
-  header: {
-    backgroundColor: '#1F2937',
-    paddingTop: 50,
-    paddingBottom: 20,
-    paddingHorizontal: 20,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  headerLeft: {
-    flex: 1,
-  },
-  appTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: 'white',
-  },
-  appSubtitle: {
-    fontSize: 14,
-    color: 'white',
-    marginTop: 2,
-  },
-  profileButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#9CA3AF',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  profileInitial: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#1F2937',
   },
   content: {
     flex: 1,
@@ -134,97 +86,37 @@ const styles = StyleSheet.create({
     color: '#374151',
     marginBottom: 20,
   },
-  card: {
+  mealItemCard: {
     backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 16,
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 10,
+    elevation: 3,
     shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
+    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
+    shadowRadius: 2,
   },
-  cardHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  cardTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#374151',
-    marginLeft: 8,
-  },
-  metricsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  metricItem: {
-    width: '48%',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  metricValue: {
-    fontSize: 24,
+  mealName: {
+    fontSize: 16,
     fontWeight: 'bold',
-    marginBottom: 4,
+    color: '#374151',
   },
-  metricLabel: {
-    fontSize: 12,
+  mealDescription: {
+    fontSize: 14,
+    color: '#6B7280',
+    marginVertical: 4,
+  },
+  mealCalories: {
+    fontSize: 14,
+    fontWeight: '500',
+    textAlign: 'right',
+    color: '#374151',
+  },
+  emptyText: {
+    fontSize: 16,
     color: '#6B7280',
     textAlign: 'center',
-  },
-  chartPlaceholder: {
-    backgroundColor: '#F9FAFB',
-    borderRadius: 8,
-    padding: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 8,
-  },
-  chartText: {
-    fontSize: 16,
-    color: '#6B7280',
-    marginTop: 12,
-    fontWeight: '500',
-  },
-  chartSubtext: {
-    fontSize: 14,
-    color: '#9CA3AF',
-    marginTop: 4,
-  },
-  achievementsList: {
-    marginTop: 8,
-  },
-  achievementItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  achievementIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  achievementInfo: {
-    flex: 1,
-  },
-  achievementTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#374151',
-    marginBottom: 2,
-  },
-  achievementDescription: {
-    fontSize: 14,
-    color: '#6B7280',
+    marginTop: 30,
   },
 });
