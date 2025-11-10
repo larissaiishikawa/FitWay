@@ -74,6 +74,12 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          href: null, // Isso esconde a tela da barra de abas
+        }}
+      />
     </Tabs>
   );
 }

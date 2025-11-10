@@ -1,7 +1,7 @@
-import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
-import { useAuth } from '@/context/AuthContext';
-import { Alert } from 'react-native';
+import { useRouter } from 'expo-router'; 
+import { useAuth } from '@/context/AuthContext'; 
 
 type HeaderProps = {
   title: string;
@@ -9,7 +9,8 @@ type HeaderProps = {
 };
 
 export default function Header({ title, subtitle }: HeaderProps) {
-  const { user, logout } = useAuth();
+  const router = useRouter(); 
+  const { user } = useAuth(); 
 
   const userInitial = user?.email ? user.email[0].toUpperCase() : 'U';
 
@@ -20,10 +21,16 @@ export default function Header({ title, subtitle }: HeaderProps) {
         <ThemedText style={styles.appSubtitle}>{subtitle}</ThemedText>
       </View>
       
-      <TouchableOpacity style={styles.profileButton} onPress={() => {
-        Alert.alert('TESTE 1', 'O botão de perfil FOI CLICADO!');
-        logout();
-      }}>
+      <TouchableOpacity 
+        style={styles.profileButton} 
+        onPress={() => {
+          Alert.alert(
+            'TESTE 1 (Pop-up)', 
+            'Clique no ícone de perfil FUNCIONOU!',
+            [{ text: 'OK', onPress: () => router.push('/profile') }] 
+          );
+        }}
+      >
         <ThemedText style={styles.profileInitial}>{userInitial}</ThemedText>
       </TouchableOpacity>
     </View>
