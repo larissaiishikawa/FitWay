@@ -1,28 +1,30 @@
 import { ThemedText } from "@/components/themed-text";
-import { StyleSheet, View, ScrollView, TouchableOpacity } from "react-native";
+import { StyleSheet, View, ScrollView, TouchableOpacity, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Link } from 'expo-router';
+import Header from '@/components/Header';
 
 export default function DietaScreen() {
   
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <ThemedText style={styles.appTitle}>FitWay</ThemedText>
-          <ThemedText style={styles.appSubtitle}>Sua jornada saudável</ThemedText>
-        </View>
-        <TouchableOpacity style={styles.profileButton}>
-          <ThemedText style={styles.profileInitial}>U</ThemedText>
-        </TouchableOpacity>
-      </View>
+      
+      <Header title="FitWay" subtitle="Sua jornada saudável" />
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.sectionHeader}>
           <ThemedText style={styles.sectionTitle}>Diário Alimentar</ThemedText>
           
           <Link href="/add-meal-modal" asChild>
-            <TouchableOpacity style={styles.addButton}>
+            <TouchableOpacity 
+              style={styles.addButton}
+              onPress={() => {
+                Alert.alert(
+                  'TESTE ADICIONAR', 
+                  'O clique no botão "Adicionar" FUNCIONOU!'
+                );
+              }}
+            >
               <Ionicons name="add" size={20} color="white" />
               <ThemedText style={styles.addButtonText}>Adicionar</ThemedText>
             </TouchableOpacity>

@@ -2,19 +2,12 @@ import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { StyleSheet, View, ScrollView, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import Header from '@/components/Header';
 
 export default function HomeScreen() {
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <ThemedText style={styles.appTitle}>FitWay</ThemedText>
-          <ThemedText style={styles.appSubtitle}>Sua jornada saudável</ThemedText>
-        </View>
-        <TouchableOpacity style={styles.profileButton}>
-          <ThemedText style={styles.profileInitial}>U</ThemedText>
-        </TouchableOpacity>
-      </View>
+      <Header title="FitWay" subtitle="Sua jornada saudável" />
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.card}>
