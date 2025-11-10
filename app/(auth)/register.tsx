@@ -1,98 +1,245 @@
-import { useState } from 'react';
-import { View, TextInput, StyleSheet, TouchableOpacity, Alert, Text } from 'react-native';
-import { ThemedText } from '@/components/themed-text';
-import { Link, useRouter } from 'expo-router';
+import React, { useState } from 'react';
+import { 
+  View, 
+  Text, 
+  TextInput, 
+  TouchableOpacity, 
+  StyleSheet, 
+  Alert,
+  ScrollView,
+  SafeAreaView 
+} from 'react-native';
+import { useRouter } from 'expo-router';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '@/firebaseConfig';
+import { doc, setDoc } from 'firebase/firestore';
+import { auth, db } from '@/firebaseConfig';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 export default function RegisterScreen() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const router = useRouter();
 
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [age, setAge] = useState('');
+  const [weight, setWeight] = useState('');
+  const [height, setHeight] = useState('');
+  const [gender, setGender] = useState('');
+  const [goal, setGoal] = useState('');
+
   const handleRegister = async () => {
-    if (!email || !password) {
+    // Validação
+    if (!email || !password || !confirmPassword || !fullName || !age || !weight || !height || !gender || !goal) {
       Alert.alert('Erro', 'Por favor, preencha todos os campos.');
       return;
     }
+    if (password !== confirmPassword) {
+      Alert.alert('Erro', 'As senhas não coincidem.');
+      return;
+    }
+
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      const userData = {
+        fullName: fullName,
+        email: email,
+        age: parseInt(age, 10),
+        weight: parseFloat(weight),
+        height: parseInt(height, 10),
+        gender: gender,
+        goal: goal,
+      };
+
+      await setDoc(doc(db, "users", user.uid), userData);
+
+      
     } catch (error: any) {
       Alert.alert('Erro no Cadastro', error.message);
     }
   };
 
   return (
-    <View style={styles.container}>
-      <ThemedText style={styles.title}>Criar Conta</ThemedText>
-      <TextInput
-        style={styles.input}
-        placeholder="Seu e-mail"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Crie uma senha"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
-      <TouchableOpacity style={styles.button} onPress={handleRegister}>
-        <ThemedText style={styles.buttonText}>Cadastrar</ThemedText>
-      </TouchableOpacity>
-      <Link href="/login" asChild>
-        <TouchableOpacity style={styles.link}>
-          <Text>Já tem uma conta? <Text style={styles.linkText}>Faça Login</Text></Text>
+    <SafeAreaView style={styles.safeContainer}>
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        
+        {/* Cabeçalho */}
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <MaterialCommunityIcons name="arrow-left" size={24} color="white" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Criar nova conta</Text>
+        </View>
+
+        {/* Card de Credenciais */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Informações de Acesso</Text>
+          
+          <Text style={styles.label}>E-mail</Text>
+          <View style={styles.inputContainer}>
+            <MaterialCommunityIcons name="email-outline" size={20} color="#6B7280" style={styles.icon} />
+            <TextInput style={styles.input} placeholder="seu@email.com" value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" />
+          </View>
+
+          <Text style={styles.label}>Senha</Text>
+          <View style={styles.inputContainer}>
+            <MaterialCommunityIcons name="lock-outline" size={20} color="#6B7280" style={styles.icon} />
+            <TextInput style={styles.input} placeholder="Mínimo 8 caracteres" value={password} onChangeText={setPassword} secureTextEntry />
+          </View>
+
+          <Text style={styles.label}>Confirmar senha</Text>
+          <View style={styles.inputContainer}>
+            <MaterialCommunityIcons name="lock-check-outline" size={20} color="#6B7280" style={styles.icon} />
+            <TextInput style={styles.input} placeholder="Digite a senha novamente" value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry />
+          </View>
+        </View>
+
+        {/* Card de Informações Básicas */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Informações Básicas</Text>
+
+          <Text style={styles.label}>Nome completo</Text>
+          <View style={styles.inputContainer}>
+            <MaterialCommunityIcons name="account-outline" size={20} color="#6B7280" style={styles.icon} />
+            <TextInput style={styles.input} placeholder="Seu nome completo" value={fullName} onChangeText={setFullName} />
+          </View>
+
+          <View style={styles.row}>
+            <View style={styles.column}>
+              <Text style={styles.label}>Idade</Text>
+              <TextInput style={styles.input} placeholder="25" value={age} onChangeText={setAge} keyboardType="numeric" />
+            </View>
+            <View style={styles.column}>
+              <Text style={styles.label}>Peso (kg)</Text>
+              <TextInput style={styles.input} placeholder="70" value={weight} onChangeText={setWeight} keyboardType="decimal-pad" />
+            </View>
+          </View>
+
+          <View style={styles.row}>
+            <View style={styles.column}>
+              <Text style={styles.label}>Altura (cm)</Text>
+              <TextInput style={styles.input} placeholder="170" value={height} onChangeText={setHeight} keyboardType="numeric" />
+            </View>
+            <View style={styles.column}>
+              <Text style={styles.label}>Sexo</Text>
+              <TextInput style={styles.input} placeholder="Feminino/Masculino" value={gender} onChangeText={setGender} />
+            </View>
+          </View>
+
+          <Text style={styles.label}>Objetivo principal</Text>
+          <TextInput style={styles.input} placeholder="Ex: Perder peso" value={goal} onChangeText={setGoal} />
+        </View>
+
+        {/* Botão Criar Conta */}
+        <TouchableOpacity style={styles.buttonPrimary} onPress={handleRegister}>
+          <Text style={styles.buttonPrimaryText}>Criar conta e começar</Text>
         </TouchableOpacity>
-      </Link>
-    </View>
+
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
+// Estilos
 const styles = StyleSheet.create({
-  container: {
+  safeContainer: {
     flex: 1,
-    justifyContent: 'center',
-    padding: 20,
     backgroundColor: '#F3F4F6',
   },
-  title: {
-    fontSize: 28,
+  scrollContainer: {
+    flexGrow: 1,
+    paddingBottom: 40,
+  },
+  header: {
+    backgroundColor: '#111827',
+    paddingTop: 50,
+    paddingBottom: 20,
+    paddingHorizontal: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderBottomLeftRadius: 16,
+    borderBottomRightRadius: 16,
+    marginBottom: 20,
+  },
+  backButton: {
+    padding: 5,
+    marginRight: 15,
+  },
+  headerTitle: {
+    fontSize: 22,
     fontWeight: 'bold',
-    marginBottom: 24,
-    textAlign: 'center',
+    color: '#FFFFFF',
+  },
+  card: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 24,
+    marginHorizontal: 20,
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 3,
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: '600',
     color: '#1F2937',
+    marginBottom: 20,
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#374151',
+    marginBottom: 8,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F3F4F6',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    paddingHorizontal: 12,
+    marginBottom: 16,
+  },
+  icon: {
+    marginRight: 8,
   },
   input: {
-    backgroundColor: 'white',
-    paddingHorizontal: 15,
+    flex: 1,
     paddingVertical: 12,
-    borderRadius: 8,
     fontSize: 16,
-    marginBottom: 15,
+    color: '#1F2937',
+    // Estilo mínimo para os textinputs sem container
+    backgroundColor: '#F3F4F6',
+    borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#D1D5DB',
+    borderColor: '#E5E7EB',
+    paddingHorizontal: 12,
+    marginBottom: 16,
   },
-  button: {
+  buttonPrimary: {
     backgroundColor: '#1F2937',
-    padding: 15,
+    padding: 16,
     borderRadius: 8,
     alignItems: 'center',
+    marginHorizontal: 20,
   },
-  buttonText: {
-    color: 'white',
+  buttonPrimaryText: {
+    color: '#FFFFFF',
     fontSize: 16,
     fontWeight: 'bold',
   },
-  link: {
-    marginTop: 20,
-    alignItems: 'center',
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
-  linkText: {
-    color: '#3B82F6',
-    fontWeight: 'bold',
+  column: {
+    flex: 1,
+    maxWidth: '48%',
   },
 });

@@ -26,7 +26,6 @@ function RootLayoutNav() {
   return (
     <Stack>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      {/* Removemos a linha (auth) daqui para corrigir o warning */}
       <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
       <Stack.Screen name="add-meal-modal" options={{ presentation: 'modal', title: 'Adicionar Refeição' }} />
     </Stack>
