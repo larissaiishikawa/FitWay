@@ -23,13 +23,7 @@ export default function Header({ title, subtitle }: HeaderProps) {
       
       <TouchableOpacity 
         style={styles.profileButton} 
-        onPress={() => {
-          Alert.alert(
-            'TESTE 1 (Pop-up)', 
-            'Clique no ícone de perfil FUNCIONOU!',
-            [{ text: 'OK', onPress: () => router.push('/profile') }] 
-          );
-        }}
+        onPress={() => router.push('/profile')}
       >
         <ThemedText style={styles.profileInitial}>{userInitial}</ThemedText>
       </TouchableOpacity>
