@@ -13,6 +13,11 @@ export default function AddMealModal() {
   const [description, setDescription] = useState('');
   const [calories, setCalories] = useState('');
 
+  const handleCaloriesChange = (text: string) => {
+    const numericText = text.replace(/[^0-9]/g, '');
+    setCalories(numericText);
+  };
+
   const handleSaveMeal = async () => {
     if (!user) {
       Alert.alert('Erro', 'Você precisa estar logado para salvar uma refeição.');
@@ -22,11 +27,18 @@ export default function AddMealModal() {
       Alert.alert('Erro', 'Por favor, preencha pelo menos o nome e as calorias.');
       return;
     }
+    
+    const caloriesNum = parseInt(calories, 10);
+    if (isNaN(caloriesNum)) {
+        Alert.alert('Erro', 'Valor de calorias inválido.');
+        return;
+    }
+
     try {
       const mealData = {
         name: name,
         description: description,
-        calories: parseInt(calories, 10),
+        calories: caloriesNum,
         createdAt: new Date(),
         userId: user.uid,
       };
@@ -58,7 +70,7 @@ export default function AddMealModal() {
         style={styles.input}
         placeholder="Calorias (ex: 720)"
         value={calories}
-        onChangeText={setCalories}
+        onChangeText={handleCaloriesChange} 
         keyboardType="numeric"
       />
       <TouchableOpacity style={styles.button} onPress={handleSaveMeal}>

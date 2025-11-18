@@ -28,6 +28,7 @@ function RootLayoutNav() {
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
       <Stack.Screen name="add-meal-modal" options={{ presentation: 'modal', title: 'Adicionar Refeição' }} />
+      <Stack.Screen name="edit-meal-modal" options={{ presentation: 'modal', title: 'Editar Refeição' }} />
     </Stack>
   );
 }
