@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ThemedText } from "@/components/themed-text";
-import { StyleSheet, View, ScrollView, TouchableOpacity, Alert } from "react-native";
+import { StyleSheet, View, ScrollView, TouchableOpacity, Alert, Text } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Link, useRouter } from 'expo-router';
 import Header from '@/components/Header';
@@ -8,11 +8,27 @@ import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
 import { useAuth } from '@/context/AuthContext';
 
+type FoodItem = {
+  name: string;
+  amount: number; 
+  unit: string;   
+  calories: number; 
+  protein: number;
+  carbs: number;
+  fat: number;
+  customAmount: string;
+  totalCalories: number;
+  totalProtein: number;
+  totalCarbs: number;
+  totalFat: number;
+};
+
 type Meal = {
   id: string;
   name: string;
-  description: string;
-  calories: number;
+  totalCalories: number; 
+  foods: FoodItem[]; 
+  createdAt?: any; // Campo opcional para data
 };
 
 const todayStart = new Date();
@@ -23,13 +39,21 @@ todayEnd.setHours(23, 59, 59, 999);
 
 export default function DietaScreen() {
   const { user } = useAuth();
+  const router = useRouter();
   const [meals, setMeals] = useState<Meal[]>([]);
-  const router = useRouter(); 
   const [loading, setLoading] = useState(true);
 
-  const totalCalories = meals.reduce((sum, meal) => sum + (meal.calories || 0), 0);
-  const mockProtein = 98; 
-  const mockCarbs = 210; 
+  const totalCalories = meals.reduce((sum, meal) => sum + (meal.totalCalories || 0), 0);
+  
+  const totalProtein = meals.reduce((mealSum, meal) => 
+      mealSum + meal.foods.reduce((foodSum, food) => foodSum + (food.totalProtein || 0), 0)
+  , 0);
+  const totalCarbs = meals.reduce((mealSum, meal) => 
+      mealSum + meal.foods.reduce((foodSum, food) => foodSum + (food.totalCarbs || 0), 0)
+  , 0);
+  const totalFat = meals.reduce((mealSum, meal) => 
+      mealSum + meal.foods.reduce((foodSum, food) => foodSum + (food.totalFat || 0), 0)
+  , 0);
 
   useEffect(() => {
     if (!user) {
@@ -46,10 +70,17 @@ export default function DietaScreen() {
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const mealsList = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as Meal[];
+      const mealsList = snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          name: data.name || 'Refeição',
+          totalCalories: data.totalCalories || 0,
+          foods: (data.foods || []) as FoodItem[],
+          createdAt: data.createdAt, // CORREÇÃO: Incluindo o campo createdAt
+        } as Meal; 
+      });
+      
       setMeals(mealsList);
       setLoading(false);
     }, (error) => {
@@ -60,21 +91,46 @@ export default function DietaScreen() {
     return () => unsubscribe();
   }, [user]);
 
-  const sortedMeals = [...meals].sort((a: any, b: any) => a.createdAt.toDate().getTime() - b.createdAt.toDate().getTime());
+  // CORREÇÃO: Ordenação segura. Se createdAt não existir ou não tiver toDate, usa 0.
+  const sortedMeals = [...meals].sort((a, b) => {
+      const timeA = a.createdAt && typeof a.createdAt.toDate === 'function' ? a.createdAt.toDate().getTime() : 0;
+      const timeB = b.createdAt && typeof b.createdAt.toDate === 'function' ? b.createdAt.toDate().getTime() : 0;
+      return timeA - timeB;
+  });
+
+  // Função Auxiliar para Renderizar Macros Seguros
+  const renderMacro = (val: number | undefined) => {
+      const num = val || 0;
+      return isNaN(num) ? '0.0' : num.toFixed(1);
+  };
 
   const MealItem = ({ meal }: { meal: Meal }) => (
       <View style={styles.mealCard}>
           <View style={styles.mealHeader}>
               <ThemedText style={styles.mealTitle}>{meal.name}</ThemedText>
-              <TouchableOpacity style={styles.editButton} onPress={() => router.push({ 
+              <TouchableOpacity 
+                style={styles.editButton} 
+                onPress={() => router.push({ 
                     pathname: "/edit-meal-modal",
                     params: { id: meal.id }
-                } as any)}>
+                } as any)}
+              >
                   <ThemedText style={styles.editButtonText}>Editar</ThemedText>
               </TouchableOpacity>
           </View>
-          <ThemedText style={styles.mealDescription}>{meal.description}</ThemedText>
-          <ThemedText style={styles.mealCalories}>{meal.calories} kcal</ThemedText>
+          
+          <View style={styles.foodsList}>
+            {meal.foods?.map((food, index) => (
+                <ThemedText key={index} style={styles.foodItemText}>
+                    • <Text style={styles.foodNameInList}>{food.name}</Text> - {food.customAmount}{food.unit} 
+                    <Text style={styles.macroDetailsText}> 
+                       {` (P:${renderMacro(food.totalProtein)}g C:${renderMacro(food.totalCarbs)}g G:${renderMacro(food.totalFat)}g)`}
+                    </Text>
+                </ThemedText>
+            ))}
+          </View>
+
+          <ThemedText style={styles.mealCalories}>{(meal.totalCalories || 0).toFixed(0)} kcal no total</ThemedText>
       </View>
   );
 
@@ -98,16 +154,20 @@ export default function DietaScreen() {
 
         <View style={styles.nutritionCard}>
           <View style={styles.nutritionItem}>
-            <ThemedText style={styles.nutritionValue}>{totalCalories.toLocaleString()}</ThemedText>
+            <ThemedText style={styles.nutritionValue}>{(totalCalories || 0).toFixed(0).toLocaleString()}</ThemedText>
             <ThemedText style={styles.nutritionLabel}>Calorias</ThemedText>
           </View>
           <View style={styles.nutritionItem}>
-            <ThemedText style={[styles.nutritionValue, { color: '#3B82F6' }]}>{mockProtein}g</ThemedText>
+            <ThemedText style={[styles.nutritionValue, { color: '#3B82F6' }]}>{renderMacro(totalProtein)}g</ThemedText>
             <ThemedText style={styles.nutritionLabel}>Proteínas</ThemedText>
           </View>
           <View style={styles.nutritionItem}>
-            <ThemedText style={[styles.nutritionValue, { color: '#F59E0B' }]}>{mockCarbs}g</ThemedText>
+            <ThemedText style={[styles.nutritionValue, { color: '#F59E0B' }]}>{renderMacro(totalCarbs)}g</ThemedText>
             <ThemedText style={styles.nutritionLabel}>Carboidratos</ThemedText>
+          </View>
+          <View style={styles.nutritionItem}>
+            <ThemedText style={[styles.nutritionValue, { color: '#EF4444' }]}>{renderMacro(totalFat)}g</ThemedText>
+            <ThemedText style={styles.nutritionLabel}>Gorduras</ThemedText>
           </View>
         </View>
 
@@ -117,10 +177,10 @@ export default function DietaScreen() {
             <ThemedText style={styles.emptyText}>Adicione sua primeira refeição do dia!</ThemedText>
         )}
 
-        {/* Refeições Dinâmicas */}
         {sortedMeals.map((meal) => (
             <MealItem key={meal.id} meal={meal} />
         ))}
+
 
         <Link href="/add-meal-modal" asChild>
           <TouchableOpacity style={styles.addDinnerButton}>
@@ -217,9 +277,9 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   mealTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#374151',
+    fontSize: 18, 
+    fontWeight: '700', 
+    color: '#1F2937',
   },
   editButton: {
     paddingHorizontal: 12,
@@ -230,15 +290,30 @@ const styles = StyleSheet.create({
     color: '#3B82F6',
     fontWeight: '500',
   },
-  mealDescription: {
+  foodsList: {
+    marginBottom: 10,
+    marginTop: 4,
+  },
+  foodItemText: {
     fontSize: 14,
     color: '#6B7280',
-    marginBottom: 4,
+    lineHeight: 20,
+    marginLeft: 5,
+  },
+  foodNameInList: { // Novo estilo para o nome do alimento na lista
+    fontWeight: '600',
+    color: '#374151',
+  },
+  macroDetailsText: { // Novo estilo para os detalhes de macros
+    fontSize: 12, 
+    color: '#9CA3AF',
   },
   mealCalories: {
     fontSize: 14,
     color: '#374151',
-    fontWeight: '500',
+    fontWeight: '600',
+    textAlign: 'right',
+    marginTop: 5,
   },
   addDinnerButton: {
     backgroundColor: 'white',
