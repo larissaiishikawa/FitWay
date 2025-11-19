@@ -57,6 +57,15 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="alimentos"
+        options={{
+          title: 'Alimentos',
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="nutrition-outline" size={24} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="treino"
         options={{
           title: 'Treino',
@@ -77,7 +86,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          href: null, // Isso esconde a tela da barra de abas
+          href: null,
         }}
       />
     </Tabs>
