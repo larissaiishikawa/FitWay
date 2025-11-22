@@ -269,7 +269,7 @@ export default function AddMealModal() {
                 keyExtractor={item => item.id}
                 style={styles.searchList}
                 ListEmptyComponent={() => (
-                    <ThemedText style={styles.emptySearch}>Nenhum alimento encontrado. Adicione um na aba 'Alimentos'.</ThemedText>
+                    <ThemedText style={styles.emptySearch}>Nenhum alimento encontrado. Adicione um na aba Alimentos.</ThemedText>
                 )}
             />
             
