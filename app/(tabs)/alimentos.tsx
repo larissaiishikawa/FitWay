@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, TextInput, FlatList, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { collection, query, onSnapshot, addDoc, deleteDoc, doc, where, writeBatch } from 'firebase/firestore'; // Adicionado writeBatch
+import { collection, query, onSnapshot, addDoc, deleteDoc, doc, where, writeBatch } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
 import { useAuth } from '@/context/AuthContext';
 import Header from '@/components/Header';
@@ -14,8 +14,8 @@ type FoodItem = {
   protein: number;
   carbs: number;
   fat: number;
-  amount: number; // Porção base
-  unit: string;   // Unidade base (ex: 100g)
+  amount: number;
+  unit: string;   
 };
 
 // Unidades Padrão para seleção
@@ -43,10 +43,10 @@ export default function AlimentosScreen() {
     name: '', protein: 0, carbs: 0, fat: 0, amount: 100, unit: 'g'
   });
   const [isAdding, setIsAdding] = useState(false);
-  const [isImporting, setIsImporting] = useState(false); // Novo estado para o loading da importação
+  const [isImporting, setIsImporting] = useState(false); 
   
   // Calcula calorias baseadas nos macros (4-4-9)
-  const calculateCalories = (p: number, c: number, f: number) => (p * 4) + (c * 4) + (f * 9);
+  const calculateCalories = (p: number, c: number, f: number) => Math.round((p * 4) + (c * 4) + (f * 9));
 
   useEffect(() => {
     if (!user) {
@@ -58,9 +58,9 @@ export default function AlimentosScreen() {
     const q = query(collection(db, 'food_database'), where('userId', '==', user.uid));
     
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const foodList = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
+      const foodList = snapshot.docs.map(docRef => ({
+        id: docRef.id,
+        ...(docRef.data() as any),
       })) as FoodItem[];
       setFoods(foodList);
       setLoading(false);
@@ -72,7 +72,6 @@ export default function AlimentosScreen() {
     return () => unsubscribe();
   }, [user]);
 
-  // Função TEMPORÁRIA para importação em lote
   const handleBatchImport = async () => {
     if (!user) return Alert.alert("Erro", "Usuário não logado.");
     
@@ -83,23 +82,18 @@ export default function AlimentosScreen() {
 
     try {
         GLOBAL_FOODS_JSON.forEach((food) => {
-            const newDocRef = doc(foodsCollectionRef);
+            const newDocRef = doc(foodsCollectionRef); // cria doc com id aleatório
             batch.set(newDocRef, {
                 ...food,
                 userId: globalUserId,
                 createdAt: new Date(),
-                // Recalcula para garantir consistência de tipo no Firestore
-                calories: calculateCalories(food.protein, food.carbs, food.fat) 
+                // Recalcula para garantir consistência
+                calories: calculateCalories(food.protein, food.carbs, food.fat)
             });
         });
 
         await batch.commit();
-        Alert.alert("Sucesso!", `Importação de ${GLOBAL_FOODS_JSON.length} alimentos globais concluída. Seu modal de dieta agora poderá encontrá-los.`);
-        
-        // Remove o botão temporariamente após o sucesso (ou após recarregar a tela)
-        // Você pode comentar a linha abaixo para deixar o botão visível para testes repetidos
-        // setIsImporting(false); 
-
+        Alert.alert("Sucesso!", `Importação de ${GLOBAL_FOODS_JSON.length} alimentos globais concluída.`);
     } catch (e) {
         console.error("Erro na importação em lote:", e);
         Alert.alert("Erro", "Falha ao importar dados. Verifique a conexão e o console.");
@@ -116,10 +110,8 @@ export default function AlimentosScreen() {
     if (numericFields.includes(field as string)) {
       // PERMITE APENAS DÍGITOS E PONTO (.)
       const cleanedValue = value.replace(/[^0-9.]/g, ''); 
-      // Converte para float, mas salva como string no estado de input
-      const numericValue = parseFloat(cleanedValue) || 0; 
-      
-      // Salvamos o valor como Number no estado, mas usamos o valor limpo para o display se o usuário ainda estiver digitando o ponto.
+      // Converte para float, mas salva como number no estado
+      const numericValue = cleanedValue === '' ? 0 : parseFloat(cleanedValue);
       setNewFood(prev => ({ ...prev, [field]: numericValue }));
     } else {
       // Para campos de texto
@@ -144,11 +136,10 @@ export default function AlimentosScreen() {
       await addDoc(collection(db, 'food_database'), {
         userId: user.uid,
         name,
-        // Garante que macros e amount são salvos como Numbers
-        protein: parseFloat(String(protein)),
-        carbs: parseFloat(String(carbs)),
-        fat: parseFloat(String(fat)),
-        amount: parseFloat(String(amount)),
+        protein: Number(protein),
+        carbs: Number(carbs),
+        fat: Number(fat),
+        amount: Number(amount),
         unit,
         calories: finalCalories,
         createdAt: new Date(),
@@ -168,8 +159,13 @@ export default function AlimentosScreen() {
       Alert.alert('Excluir', 'Tem certeza que deseja excluir este alimento?', [
           { text: 'Cancelar', style: 'cancel' },
           { text: 'Excluir', style: 'destructive', onPress: async () => {
-              await deleteDoc(doc(db, 'food_database', foodId));
-              Alert.alert('Sucesso', 'Alimento excluído.');
+              try {
+                await deleteDoc(doc(db, 'food_database', foodId));
+                Alert.alert('Sucesso', 'Alimento excluído.');
+              } catch (e) {
+                console.error('Erro ao excluir:', e);
+                Alert.alert('Erro', 'Falha ao excluir alimento.');
+              }
           }}
       ]);
   };
@@ -180,12 +176,17 @@ export default function AlimentosScreen() {
         <ThemedText style={styles.foodNameText}>{item.name}</ThemedText>
         <ThemedText style={styles.foodUnitText}>Porção Base: {item.amount}{item.unit}</ThemedText>
       </View>
-      <View style={styles.foodMacros}>
-        <Text style={styles.macroText}>P: {item.protein}g</Text>
-        <Text style={styles.macroText}>C: {item.carbs}g</Text>
-        <Text style={styles.macroText}>G: {item.fat}g</Text>
+
+      <View style={styles.rightArea}>
+        <View style={styles.foodMacros}>
+          <Text style={styles.macroText}>P: {item.protein}g</Text>
+          <Text style={styles.macroText}>C: {item.carbs}g</Text>
+          <Text style={styles.macroText}>G: {item.fat}g</Text>
+        </View>
+
+        <ThemedText style={styles.foodCaloriesText}>{item.calories ?? calculateCalories(item.protein, item.carbs, item.fat)} kcal</ThemedText>
       </View>
-      <ThemedText style={styles.foodCaloriesText}>{item.calories} kcal</ThemedText>
+
       <TouchableOpacity onPress={() => handleDeleteFood(item.id!)} style={styles.deleteBtn}>
         <Ionicons name="trash-outline" size={20} color="#EF4444" />
       </TouchableOpacity>
@@ -197,26 +198,45 @@ export default function AlimentosScreen() {
       <Header title="FitWay" subtitle="Banco de Alimentos" />
 
       <View style={styles.content}>
+
+        {/* Cabeçalho da seção */}
         <View style={styles.sectionHeader}>
-          <ThemedText style={styles.sectionTitle}>Alimentos Cadastrados</ThemedText>
+          <ThemedText style={styles.sectionTitle}>
+            Alimentos Cadastrados
+          </ThemedText>
+
+          {/* Botões alinhados à direita */}
           <View style={styles.actionButtons}>
-            {/* BOTÃO TEMPORÁRIO DE IMPORTAÇÃO */}
-            <TouchableOpacity 
+
+            {/* import wrapper permite encolher no Android/IOS */}
+            <View style={styles.importButtonWrapper}>
+              <TouchableOpacity 
                 style={styles.importButton} 
                 onPress={handleBatchImport} 
                 disabled={isImporting}
-            >
+              >
                 {isImporting ? (
-                    <ActivityIndicator color="white" />
+                  <ActivityIndicator color="white" />
                 ) : (
-                    <Text style={styles.importButtonText}>Importar Base (1x)</Text>
+                  <Text style={styles.importButtonText}>Importar Base (1x)</Text>
                 )}
+              </TouchableOpacity>
+            </View>
+
+            <TouchableOpacity 
+              style={styles.addButton} 
+              onPress={() => setIsAdding(!isAdding)}
+            >
+              <Ionicons 
+                name={isAdding ? "close-circle" : "add"} 
+                size={14} 
+                color="white" 
+              />
+              <Text style={styles.addButtonText}>
+                {isAdding ? "Fechar" : "Novo"}
+              </Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.addButton} onPress={() => setIsAdding(!isAdding)}>
-              <Ionicons name={isAdding ? "close-circle" : "add"} size={20} color="white" />
-              <ThemedText style={styles.addButtonText}>{isAdding ? "Fechar" : "Novo"}</ThemedText>
-            </TouchableOpacity>
           </View>
         </View>
 
@@ -275,6 +295,7 @@ export default function AlimentosScreen() {
           contentContainerStyle={{ paddingBottom: 50 }}
           style={styles.list}
         />
+
       </View>
     </View>
   );
@@ -282,38 +303,69 @@ export default function AlimentosScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F3F4F6' },
-  content: { flex: 1, paddingHorizontal: 20 },
-  sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginVertical: 16 },
-  sectionTitle: { fontSize: 24, fontWeight: 'bold', color: '#374151' },
+  content: { flex: 1, paddingHorizontal: 20, paddingTop: 16, paddingBottom: 20 },
+  sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginVertical: 12 },
+  sectionTitle: { fontSize: 24, fontWeight: 'bold', color: '#374151', flexShrink: 1 },
   
   // Botões de Ação
-  actionButtons: { flexDirection: 'row', alignItems: 'center', gap: 10 }, // Novo container para botões
-  addButton: { backgroundColor: '#1F2937', flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 8 },
-  addButtonText: { color: 'white', fontSize: 14, fontWeight: '600', marginLeft: 4 },
-  importButton: { 
-      backgroundColor: '#3B82F6', 
-      flexDirection: 'row', 
-      alignItems: 'center', 
-      paddingHorizontal: 12, 
-      paddingVertical: 8, 
-      borderRadius: 8,
+  actionButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    flexShrink: 1,
+    gap: 8,
   },
+  
+  importButtonWrapper: {
+    marginRight: 8,
+    minWidth: 0, 
+  },
+  
+  importButton: {
+    backgroundColor: '#3B82F6',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+    justifyContent: 'center',
+    maxWidth: 140,  
+  },
+  
   importButtonText: { color: 'white', fontSize: 12, fontWeight: '600' },
+
+  addButton: {
+    backgroundColor: '#1F2937',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    minWidth: 64,
+  },
+  addButtonText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: '600',
+    marginLeft: 6,
+    flexShrink: 1,
+  },
+
   emptyText: { textAlign: 'center', color: '#6B7280', marginTop: 30 },
   
   // Formulário
-  formContainer: { backgroundColor: 'white', padding: 15, borderRadius: 12, marginBottom: 20, shadowColor: '#000', shadowOpacity: 0.1, elevation: 3 },
-  formTitle: { fontSize: 18, fontWeight: 'bold', color: '#1F2937', marginBottom: 15 },
+  formContainer: { backgroundColor: 'white', padding: 15, borderRadius: 12, marginBottom: 20, shadowColor: '#000', shadowOpacity: 0.08, elevation: 3 },
+  formTitle: { fontSize: 18, fontWeight: 'bold', color: '#1F2937', marginBottom: 12 },
   input: { backgroundColor: '#F9FAFB', borderWidth: 1, borderColor: '#E5E7EB', borderRadius: 8, padding: 12, marginBottom: 10, fontSize: 16 },
   macroRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10, gap: 10 },
-  macroInput: { flex: 1, backgroundColor: '#F9FAFB', borderWidth: 1, borderColor: '#E5E7EB', borderRadius: 8, padding: 12, fontSize: 14 },
+  macroInput: { flex: 1, backgroundColor: '#F9FAFB', borderWidth: 1, borderColor: '#E5E7EB', borderRadius: 8, padding: 12, fontSize: 14, minWidth: 0 },
   calculatedCalories: { fontSize: 16, fontWeight: 'bold', color: '#10B981', textAlign: 'center', marginVertical: 10 },
   saveButton: { backgroundColor: '#3B82F6', padding: 12, borderRadius: 8, alignItems: 'center' },
   saveButtonText: { color: 'white', fontWeight: 'bold' },
   
   // Seletor de Unidade
   unitSelectorContainer: { flex: 1, flexDirection: 'row', alignItems: 'center', padding: 0, paddingHorizontal: 10 },
-  unitSelectorLabel: { fontSize: 14, color: '#6B7280', marginRight: 5, fontWeight: '500' },
+  unitSelectorLabel: { fontSize: 14, color: '#6B7280', marginRight: 8, fontWeight: '500' },
   unitSelectorScroll: { alignItems: 'center' },
   unitButton: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6, backgroundColor: '#E5E7EB', marginLeft: 5 },
   unitButtonActive: { backgroundColor: '#3B82F6' },
@@ -321,13 +373,29 @@ const styles = StyleSheet.create({
   unitButtonTextActive: { color: 'white' },
 
   // Lista de Alimentos
-  list: { flex: 1 },
-  foodCard: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'white', padding: 15, borderRadius: 12, marginBottom: 10, shadowColor: '#000', shadowOpacity: 0.05, elevation: 2 },
-  foodInfo: { flex: 1, marginRight: 10 },
+  list: { flex: 1, marginTop: 8 },
+
+  foodCard: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    alignItems: 'center', 
+    backgroundColor: 'white', 
+    padding: 15, 
+    borderRadius: 12, 
+    marginBottom: 10, 
+    shadowColor: '#000', 
+    shadowOpacity: 0.05, 
+    elevation: 2 
+  },
+
+  foodInfo: { flex: 1, marginRight: 10, minWidth: 0 },
   foodNameText: { fontSize: 16, fontWeight: 'bold', color: '#1F2937' },
   foodUnitText: { fontSize: 12, color: '#6B7280' },
-  foodMacros: { flexDirection: 'row', gap: 8, marginRight: 15 },
+
+  rightArea: { alignItems: 'flex-end', marginRight: 8 },
+  foodMacros: { flexDirection: 'row', gap: 8, marginBottom: 6 },
   macroText: { fontSize: 12, color: '#6B7280', fontWeight: '500' },
+
   foodCaloriesText: { fontSize: 16, fontWeight: 'bold', color: '#10B981' },
   deleteBtn: { paddingLeft: 10 },
 });
