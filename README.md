@@ -4,100 +4,111 @@
 
 ---
 
-## 📖 **Sumário**
-
-* 📋 Visão Geral
-* 🎯 Objetivo
-* 🧠 Entendimento do Negócio
-* 💡 Proposta de Solução
-* 📂 Estrutura do Projeto
-* 🖼 Mockups e Prototipagem
-* ⚙️ Tecnologias Utilizadas
-* 👥 Equipe
-* 🛠 Como Executar o Projeto
-* 🚀 Próximos Passos
-
----
-
 ## 📋 **Visão Geral**
 
 O **FitWay** surgiu para resolver a dificuldade de manter hábitos saudáveis no dia a dia.
-Nosso app permite que usuários planejem dieta, registrem refeições, acompanhem treinos e monitorem sua evolução de forma **simples, visual e intuitiva**.
+O app permite que o usuário planeje a dieta, registre refeições, acompanhe treinos e monitore sua evolução de forma **simples, intuitiva e visual**.
+
+Ele foi construído com **React Native + Expo**, usando **TypeScript**, arquitetura limpa (MVVM), componentes reutilizáveis e integração com **Firebase** para persistência de dados.
 
 ---
 
 ## 🎯 **Objetivo**
 
-✅ Criar um **MVP funcional** que permita ao usuário:
+Criar um **MVP funcional** que possibilite ao usuário:
 
 * Registrar refeições e treinos
-* Visualizar metas e progresso diário
-* Acompanhar relatórios semanais
+* Manter metas e progresso diário
+* Visualizar relatórios semanais e mensais
+* Ter acesso a uma interface simples e rápida
+* Sincronizar dados na nuvem
 
 ---
 
 ## 🧠 **Entendimento do Negócio**
 
-**Problema:**
+### **Problema Identificado**
 
-* Falta de acompanhamento personalizado → frustração e abandono de metas
-* Informações conflitantes e falta de tempo → hábitos inconsistentes
+* Falta de acompanhamento adequado → abandono das metas
+* Informações dispersas → falta de organização
+* Falta de motivação visual → baixa adesão
 
-**Solução:**
+### **Solução Proposta**
 
-* Aplicativo que centraliza dieta, treino e relatórios
-* Interface amigável para manter engajamento
-* Sistema de metas para motivação diária
+* App que centraliza dieta + treino + relatórios
+* Interface amigável, sem poluição visual
+* Feedback rápido e visual das metas
+* Persistência de dados em cloud
 
 ---
 
 ## 💡 **Proposta de Solução**
 
-* 🥗 **Plano alimentar** e diário de refeições
-* 🏋️ **Treinos com vídeos e instruções**
-* 📊 **Relatórios e gráficos** de evolução
-* 🔔 **Notificações e lembretes** para manter o usuário no caminho
-* ☁ **Sincronização em nuvem** (Firebase)
+* 🥗 **Diário alimentar completo**
+* 🏋️ **Registro de treinos com duração e data**
+* 📊 **Relatórios visuais de evolução**
+* 🔐 **Login e autenticação com Firebase**
+* ☁ **Salvamento em Firestore (NoSQL)**
+* 🌓 **Tema claro e escuro automático**
 
 ---
 
-## 📂 **Estrutura do Projeto**
+## 📂 **Arquitetura e Estrutura do Projeto**
+
+O FitWay utiliza o padrão **MVVM**, separando interface, lógica e dados.
 
 ```bash
 📦 FitWay
- ┣ 📂 app              # Estrutura principal do React Native + Expo
- ┣ 📂 assets/images   # Ícones, logos e imagens usadas no app
- ┣ 📂 components      # Componentes reutilizáveis (botões, inputs, headers)
- ┣ 📂 constants       # Variáveis globais (cores, fontes, configs)
- ┣ 📂 hooks           # Custom Hooks para lógica reutilizável
- ┣ 📂 scripts         # Scripts auxiliares
- ┣ 📜 app.json        # Configurações do Expo
- ┣ 📜 package.json    # Dependências e scripts NPM
- ┣ 📜 tsconfig.json   # Configurações de TypeScript
- ┣ 📜 eslint.config.js # Regras de lint
- ┣ 📜 README.md       # Este arquivo
+ ┣ 📂 app                 # Telas, stacks e rotas (Expo Router)
+ ┣ 📂 assets/images       # Imagens e ícones
+ ┣ 📂 components          # Componentes reutilizáveis
+ ┣ 📂 constants           # Cores, estilos, temas
+ ┣ 📂 context             # AuthContext (login persistente)
+ ┣ 📂 hooks               # Hooks de tema, Firestore e lógica
+ ┣ 📂 scripts             # Scripts auxiliares
+ ┣ 📜 firebaseConfig.ts   # Configuração do Firebase
+ ┣ 📜 app.json            # Configurações Expo
+ ┣ 📜 package.json        # Dependências
+ ┣ 📜 tsconfig.json       # TypeScript
+ ┣ 📜 eslint.config.js    # Padronização de código
+ ┗ 📜 README.md
 ```
+
+---
+
+## 🗺 **Fluxo de Navegação**
+
+* Tela inicial: Login / Cadastro
+* Usuário autenticado → navegação por abas:
+
+  * **Dashboard**
+  * **Dieta**
+  * **Treino**
+  * **Relatórios**
+  * **Explorar**
 
 ---
 
 ## 🖼 **Mockups e Prototipagem**
 
-📌 **Fluxo inicial do usuário:**
-Login → Tela inicial (metas) → Diário alimentar → Tela de treino → Relatórios
+Protótipos criados no **Figma**:
+[https://bit.ly/prototipo-fitway](https://bit.ly/prototipo-fitway)
 
-🔗 Mockups criados no **Figma** *https://bit.ly/prototipo-fitway*
+Fluxo geral:
+Login → Home → Diário → Treinos → Relatórios
 
 ---
 
 ## ⚙️ **Tecnologias Utilizadas**
 
-* **Framework:** React Native + Expo
-* **Linguagem:** TypeScript (83,7%) + JavaScript
-* **Gerenciamento de Estado:** Context API ou Redux
-* **Banco de Dados:** Firebase Firestore
-* **Navegação:** React Navigation
-* **Validação:** Formik + Yup
-* **Lint:** ESLint + Prettier
+* **React Native + Expo**
+* **TypeScript**
+* **Firebase Authentication**
+* **Firestore (NoSQL)**
+* **Expo Router**
+* **Context API**
+* **ESLint + Prettier**
+* **Figma** para prototipação
 
 ---
 
@@ -130,16 +141,3 @@ npx expo start
 ```
 
 > Você pode escanear o QR Code no terminal com o **Expo Go** no celular para visualizar o app em tempo real.
-
----
-
-## 🚀 **Próximos Passos**
-
-* Criar tela de relatórios com gráficos dinâmicos
-* Integrar Firebase para autenticação e banco de dados
-* Implementar notificações push
-* Adicionar sistema de metas gamificado
-* Testes com usuários e melhorias de UX
-
----
-
