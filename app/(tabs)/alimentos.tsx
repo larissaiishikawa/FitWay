@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, TextInput, FlatList, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { collection, query, onSnapshot, addDoc, deleteDoc, doc, where, writeBatch } from 'firebase/firestore';
+import { collection, query, onSnapshot, addDoc, deleteDoc, doc, where } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
 import { useAuth } from '@/context/AuthContext';
 import Header from '@/components/Header';
@@ -15,23 +15,11 @@ type FoodItem = {
   carbs: number;
   fat: number;
   amount: number;
-  unit: string;   
+  unit: string;
 };
 
 // Unidades Padrão para seleção
 const UNITS = ['g', 'kg', 'ml', 'l', 'un', 'fat.'];
-
-// JSON BASE GLOBAL DE ALIMENTOS (Inserido no código para importação de uso único)
-const GLOBAL_FOODS_JSON = [
-  { "name": "Iogurte Natural (Integral)", "protein": 4.1, "carbs": 5.6, "fat": 3.5, "amount": 100, "unit": "g", "calories": 67.5 },
-  { "name": "Pão Francês", "protein": 7.5, "carbs": 58.6, "fat": 2.2, "amount": 50, "unit": "un", "calories": 286.6 },
-  { "name": "Arroz Branco Cozido", "protein": 2.5, "carbs": 28.0, "fat": 0.2, "amount": 100, "unit": "g", "calories": 128 },
-  { "name": "Peito de Frango (Grelhado)", "protein": 31.0, "carbs": 0.0, "fat": 3.6, "amount": 100, "unit": "g", "calories": 159.6 },
-  { "name": "Ovo Cozido", "protein": 12.6, "carbs": 1.1, "fat": 10.6, "amount": 50, "unit": "un", "calories": 155 },
-  { "name": "Banana Nanica", "protein": 1.1, "carbs": 22.3, "fat": 0.3, "amount": 100, "unit": "g", "calories": 95.8 },
-  { "name": "Leite Integral", "protein": 3.3, "carbs": 4.7, "fat": 3.4, "amount": 100, "unit": "ml", "calories": 61.8 },
-  { "name": "Maçã com casca", "protein": 0.3, "carbs": 13.8, "fat": 0.2, "amount": 100, "unit": "un", "calories": 52 },
-];
 
 export default function AlimentosScreen() {
   const { user } = useAuth();
@@ -43,7 +31,6 @@ export default function AlimentosScreen() {
     name: '', protein: 0, carbs: 0, fat: 0, amount: 100, unit: 'g'
   });
   const [isAdding, setIsAdding] = useState(false);
-  const [isImporting, setIsImporting] = useState(false); 
   
   // Calcula calorias baseadas nos macros (4-4-9)
   const calculateCalories = (p: number, c: number, f: number) => Math.round((p * 4) + (c * 4) + (f * 9));
@@ -71,37 +58,6 @@ export default function AlimentosScreen() {
 
     return () => unsubscribe();
   }, [user]);
-
-  const handleBatchImport = async () => {
-    if (!user) return Alert.alert("Erro", "Usuário não logado.");
-    
-    setIsImporting(true);
-    const batch = writeBatch(db);
-    const globalUserId = "GLOBAL_FOODS";
-    const foodsCollectionRef = collection(db, 'food_database');
-
-    try {
-        GLOBAL_FOODS_JSON.forEach((food) => {
-            const newDocRef = doc(foodsCollectionRef); // cria doc com id aleatório
-            batch.set(newDocRef, {
-                ...food,
-                userId: globalUserId,
-                createdAt: new Date(),
-                // Recalcula para garantir consistência
-                calories: calculateCalories(food.protein, food.carbs, food.fat)
-            });
-        });
-
-        await batch.commit();
-        Alert.alert("Sucesso!", `Importação de ${GLOBAL_FOODS_JSON.length} alimentos globais concluída.`);
-    } catch (e) {
-        console.error("Erro na importação em lote:", e);
-        Alert.alert("Erro", "Falha ao importar dados. Verifique a conexão e o console.");
-    } finally {
-        setIsImporting(false);
-    }
-  };
-
 
   const handleInputChange = (field: keyof typeof newFood, value: string) => {
     // Campos que devem aceitar decimais
@@ -205,24 +161,8 @@ export default function AlimentosScreen() {
             Alimentos Cadastrados
           </ThemedText>
 
-          {/* Botões alinhados à direita */}
+          {/* Botão Novo alinhado à direita */}
           <View style={styles.actionButtons}>
-
-            {/* import wrapper permite encolher no Android/IOS */}
-            <View style={styles.importButtonWrapper}>
-              <TouchableOpacity 
-                style={styles.importButton} 
-                onPress={handleBatchImport} 
-                disabled={isImporting}
-              >
-                {isImporting ? (
-                  <ActivityIndicator color="white" />
-                ) : (
-                  <Text style={styles.importButtonText}>Importar Base (1x)</Text>
-                )}
-              </TouchableOpacity>
-            </View>
-
             <TouchableOpacity 
               style={styles.addButton} 
               onPress={() => setIsAdding(!isAdding)}
@@ -236,7 +176,6 @@ export default function AlimentosScreen() {
                 {isAdding ? "Fechar" : "Novo"}
               </Text>
             </TouchableOpacity>
-
           </View>
         </View>
 
@@ -316,24 +255,6 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   
-  importButtonWrapper: {
-    marginRight: 8,
-    minWidth: 0, 
-  },
-  
-  importButton: {
-    backgroundColor: '#3B82F6',
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 8,
-    justifyContent: 'center',
-    maxWidth: 140,  
-  },
-  
-  importButtonText: { color: 'white', fontSize: 12, fontWeight: '600' },
-
   addButton: {
     backgroundColor: '#1F2937',
     flexDirection: 'row',
