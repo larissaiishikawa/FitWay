@@ -124,20 +124,59 @@ Login → Home → Diário → Treinos → Relatórios
 
 ---
 
-## 🛠 **Como Executar o Projeto**
+## 🚀 Como Executar o Projeto
+
+Siga as instruções abaixo para configurar, instalar as dependências e rodar o **FitWay** no seu ambiente local.
+
+### 📋 Pré-requisitos
+
+Antes de começar, verifique se você possui as seguintes ferramentas instaladas em sua máquina:
+
+* **[Git](https://git-scm.com/downloads):** Para clonar o repositório.
+* **[Node.js](https://nodejs.org/) (versão 21 ou superior):** O ambiente de execução.
+    * *Dica: Digite `node -v` no seu terminal para verificar a versão instalada.*
+* **App Expo Go:** Instale no seu celular para visualizar o aplicativo.
+    * [Google Play (Android)](https://play.google.com/store/apps/details?id=host.exp.exponent)
+    * [App Store (iOS)](https://apps.apple.com/app/expo-go/id982107779)
+
+### 🔧 Instalação
+
+1.  **Clone o repositório:**
+    ```bash
+    git clone https://github.com/larissaiishikawa/FitWay.git
+    ```
+
+2.  **Acesse a pasta do projeto:**
+    ```bash
+    cd FitWay
+    ```
+
+3.  **Instale as dependências:**
+    ```bash
+    npm install
+    ```
+
+### 🔐 Configuração de Variáveis de Ambiente (.env)
+
+Este projeto utiliza variáveis de ambiente para dados sensíveis (como chaves de API).
+
+1.  Crie um arquivo chamado `.env` na raiz do projeto.
+2.  Copie o conteúdo do arquivo de exemplo `.env.example` (se houver) ou adicione as chaves necessárias manualmente.
+3.  O arquivo `.env` deve seguir este formato:
+
+### ▶️ Executando o App
+
+Com tudo configurado, inicie o servidor de desenvolvimento:
 
 ```bash
-# Clone o repositório
-git clone https://github.com/larissaiishikawa/FitWay.git
-
-# Acesse a pasta do projeto
-cd FitWay
-
-# Instale as dependências
-npm install
-
-# Rode o app no Expo
 npx expo start
 ```
 
-> Você pode escanear o QR Code no terminal com o **Expo Go** no celular para visualizar o app em tempo real.
+### 📱 Como Visualizar no Celular
+Após rodar o comando acima, um QR Code aparecerá no seu terminal.
+
+Abra o app Expo Go no seu celular.
+
+No Android: Toque em "Scan QR Code" e aponte a câmera para o terminal.
+
+No iOS: Use o app de Câmera nativo do iPhone para escanear o QR Code.
