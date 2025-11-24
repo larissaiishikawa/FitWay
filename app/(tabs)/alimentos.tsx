@@ -19,7 +19,7 @@ type FoodItem = {
 };
 
 // Unidades Padrão para seleção
-const UNITS = ['g', 'kg', 'ml', 'l', 'un', 'fat.'];
+const UNITS = ['g', 'ml'];
 
 export default function AlimentosScreen() {
   const { user } = useAuth();
@@ -192,11 +192,20 @@ export default function AlimentosScreen() {
             </View>
             
             <View style={styles.macroRow}>
-                <TextInput style={[styles.macroInput, {flex: 2}]} placeholder="Porção Base (Ex: 100)" keyboardType="numeric" value={String(newFood.amount || '')} onChangeText={(t) => handleInputChange('amount', t)} />
+                {/* Mudei flex: 2 para flex: 1 aqui */}
+                <View style={{flex: 1, marginRight: 10}}>
+                    <TextInput 
+                        style={[styles.macroInput, {width: '100%'}]} 
+                        placeholder="Porção Base (100)" 
+                        keyboardType="numeric" 
+                        value={String(newFood.amount || '')} 
+                        onChangeText={(t) => handleInputChange('amount', t)} 
+                    />
+                </View>
                 
-                {/* Seletor de Unidade */}
-                <View style={[styles.macroInput, styles.unitSelectorContainer]}>
-                    <Text style={styles.unitSelectorLabel}>Unidade:</Text>
+                {/* Seletor de Unidade (Agora com mais espaço) */}
+                <View style={[styles.macroInput, styles.unitSelectorContainer, {flex: 1}]}>
+                    <Text style={styles.unitSelectorLabel}>Unid:</Text>
                     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.unitSelectorScroll}>
                         {UNITS.map(unit => (
                             <TouchableOpacity
@@ -209,7 +218,6 @@ export default function AlimentosScreen() {
                         ))}
                     </ScrollView>
                 </View>
-                {/* Fim Seletor de Unidade */}
             </View>
 
             <Text style={styles.calculatedCalories}>Calorias Calculadas: {calculateCalories(newFood.protein, newFood.carbs, newFood.fat)} kcal</Text>
@@ -285,10 +293,28 @@ const styles = StyleSheet.create({
   saveButtonText: { color: 'white', fontWeight: 'bold' },
   
   // Seletor de Unidade
-  unitSelectorContainer: { flex: 1, flexDirection: 'row', alignItems: 'center', padding: 0, paddingHorizontal: 10 },
-  unitSelectorLabel: { fontSize: 14, color: '#6B7280', marginRight: 8, fontWeight: '500' },
+  unitSelectorContainer: { 
+    // Remova flex fixo se tiver, deixe o layout pai controlar
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    padding: 0, 
+    paddingHorizontal: 5,
+    overflow: 'hidden' // Garante que não vaze
+},
+unitSelectorLabel: { 
+    fontSize: 12, // Fonte um pouco menor
+    color: '#6B7280', 
+    marginRight: 2, 
+    fontWeight: '500' 
+},
+unitButton: { 
+    paddingHorizontal: 8, // Padding menor para caber mais
+    paddingVertical: 6, 
+    borderRadius: 6, 
+    backgroundColor: '#E5E7EB', 
+    marginLeft: 4 
+},
   unitSelectorScroll: { alignItems: 'center' },
-  unitButton: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6, backgroundColor: '#E5E7EB', marginLeft: 5 },
   unitButtonActive: { backgroundColor: '#3B82F6' },
   unitButtonText: { color: '#4B5563', fontSize: 12, fontWeight: '600' },
   unitButtonTextActive: { color: 'white' },

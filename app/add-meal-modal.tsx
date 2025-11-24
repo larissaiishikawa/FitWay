@@ -262,54 +262,56 @@ export default function AddMealModal() {
                 value={searchQuery}
                 onChangeText={setSearchQuery}
             />
-            {/* Lista de alimentos filtrada */}
+            
             <FlatList
                 data={filteredDbFoods}
                 renderItem={renderDbFoodItem}
                 keyExtractor={item => item.id}
                 style={styles.searchList}
                 ListEmptyComponent={() => (
-                    <ThemedText style={styles.emptySearch}>Nenhum alimento encontrado. Adicione um na aba Alimentos.</ThemedText>
+                    <ThemedText style={styles.emptySearch}>Nenhum alimento encontrado.</ThemedText>
                 )}
             />
             
-            {/* Se um alimento estiver selecionado, mostra o input de quantidade */}
+            {/* BOX DO ITEM SELECIONADO (CORRIGIDO) */}
             {selectedFoodBase && (
                 <View style={styles.selectedFoodBox}>
                     <ThemedText style={styles.selectedTitle}>{selectedFoodBase.name}</ThemedText>
-                    <ThemedText style={styles.selectedDetails}>Porção base: {selectedFoodBase.amount}{selectedFoodBase.unit} ({selectedFoodBase.calories} kcal)</ThemedText>
+                    <ThemedText style={styles.selectedDetails}>
+                        Base: {selectedFoodBase.amount}{selectedFoodBase.unit} ({selectedFoodBase.calories} kcal)
+                    </ThemedText>
                     
+                    {/* Linha de Quantidade e Unidade */}
                     <View style={styles.customAmountRow}>
-                        <TextInput
-                            style={[styles.input, styles.amountInput]}
-                            placeholder={`Ex: 50`}
-                            keyboardType="numeric"
-                            value={customAmount}
-                            onChangeText={(t) => setCustomAmount(t.replace(/[^0-9.]/g, ''))} 
-                        />
-                        {/* Seletor de Unidade de Consumo */}
-                        <View style={styles.unitSelectorContainerModal}>
-                            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.unitSelectorScroll}>
-                                {UNITS.map(unit => (
-                                    <TouchableOpacity
-                                        key={unit}
-                                        style={[styles.unitButton, customUnit === unit && styles.unitButtonActive]}
-                                        onPress={() => setCustomUnit(unit)}
-                                    >
-                                        <Text style={[styles.unitButtonText, customUnit === unit && styles.unitButtonTextActive]}>{unit}</Text>
-                                    </TouchableOpacity>
-                                ))}
-                            </ScrollView>
+                        <View style={{flex: 1, marginRight: 10}}>
+                            <ThemedText style={styles.labelSmall}>Quantidade</ThemedText>
+                            <TextInput
+                                style={[styles.input, styles.amountInput]}
+                                placeholder="Ex: 50"
+                                keyboardType="numeric"
+                                value={customAmount}
+                                onChangeText={(t) => setCustomAmount(t.replace(/[^0-9.]/g, ''))} 
+                            />
                         </View>
                         
-                        <TouchableOpacity style={styles.addToMealButton} onPress={handleAddFoodToMeal}>
-                            <Ionicons name="add" size={24} color="white" />
-                            <ThemedText style={styles.addToMealButtonText}>Adicionar</ThemedText>
-                        </TouchableOpacity>
+                        {/* Unidade de Consumo (Agora com seletor se quiser mudar, ou fixo) */}
+                        <View style={{flex: 1}}>
+                             <ThemedText style={styles.labelSmall}>Unidade</ThemedText>
+                             <View style={styles.readOnlyUnit}>
+                                <Text style={styles.customUnitText}>{selectedFoodBase.unit}</Text>
+                             </View>
+                        </View>
                     </View>
+
                     <ThemedText style={styles.finalCalorieText}>
                         Resultado: {liveCalculatedMacros?.totalCalories} kcal
                     </ThemedText>
+
+                    {/* BOTÃO MOVIDO PARA BAIXO (FULL WIDTH) */}
+                    <TouchableOpacity style={styles.addToMealButtonFull} onPress={handleAddFoodToMeal}>
+                        <Ionicons name="add-circle" size={24} color="white" />
+                        <ThemedText style={styles.addToMealButtonText}>Adicionar à Refeição</ThemedText>
+                    </TouchableOpacity>
                 </View>
             )}
 
@@ -521,7 +523,45 @@ const styles = StyleSheet.create({
     borderRadius: 12, 
     marginTop: 10, 
     borderWidth: 2, 
-    borderColor: '#3B82F6' 
+    borderColor: '#3B82F6',
+    // Garante que fique acima do teclado se necessário
+    marginBottom: 20 
+  },
+  customAmountRow: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between',
+    alignItems: 'flex-end', // Alinha inputs pela base
+    marginBottom: 20 
+  },
+  amountInput: { 
+    marginBottom: 0,
+    textAlign: 'center',
+    fontSize: 18,
+    fontWeight: 'bold'
+  },
+  labelSmall: {
+    fontSize: 12,
+    color: '#6B7280',
+    marginBottom: 4,
+    fontWeight: '600'
+  },
+  readOnlyUnit: {
+    backgroundColor: '#F3F4F6',
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    alignItems: 'center'
+  },
+  // Botão Full Width (Ocupa toda a largura)
+  addToMealButtonFull: { 
+    backgroundColor: '#1F2937', 
+    paddingVertical: 15, 
+    borderRadius: 10, 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: 'center',
+    width: '100%' 
   },
   selectedTitle: { 
     fontSize: 18, 
@@ -533,16 +573,6 @@ const styles = StyleSheet.create({
     fontSize: 14, 
     color: '#6B7280', 
     marginBottom: 15 
-  },
-  customAmountRow: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    gap: 10, 
-    marginBottom: 10 
-  },
-  amountInput: { 
-    flex: 0.5, 
-    marginBottom: 0 
   },
   customUnitText: { 
     fontSize: 16, 
